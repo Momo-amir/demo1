@@ -1,87 +1,103 @@
 #include <Arduino.h>
-#include <AsyncTCP.h>
-#include <OneWire.h>
-#include <ESPAsyncWebServer.h>
-#include <DallasTemperature.h>
 #include <WiFi.h>
+#include <ESPAsyncWebServer.h>
+#include <SPIFFS.h>
+#include <Preferences.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
-
-// Define the GPIO pin where the DS18B20 is connected
-#define ONE_WIRE_BUS 23  
-
-// Setup OneWire and DallasTemperature library
+#define ONE_WIRE_BUS 23  // Temperature sensor pin
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
-// WiFi credentials
-const char* ssid = "KOLLAB-Public";   
-const char* password = "Guest123asd";
+Preferences preferences;
+AsyncWebServer server(80);
 
-// Access Point credentials
 const char* apSSID = "ESP32-Temp";
 const char* apPassword = "12345678";
 
-
-AsyncWebServer server(80);
-
-
-String getTemperature() {
-  sensors.requestTemperatures();
-  float tempC = sensors.getTempCByIndex(0);
-  return String(tempC, 2);  // Convert to string with 2 decimal places
-}
-
-
-
 void setup() {
     Serial.begin(115200);
-    Serial.println("Starting ESP32...");
     sensors.begin();
+    
+    // Mount SPIFFS
+    if (!SPIFFS.begin(true)) {
+        Serial.println("⚠️ SPIFFS Mount Failed");
+        return;
+    }
 
-    WiFi.begin(ssid, password);
-    Serial.print("Connecting to WiFi");
+    // Start WiFi connection process
+    preferences.begin("wifi", false);
+    String ssid = preferences.getString("ssid", "KOLLAB-Public");
+    String password = preferences.getString("password", "Guest123asd");
 
-    int timeout = 10;  // 10 seconds timeout
-    while (WiFi.status() != WL_CONNECTED && timeout > 0) {
-        delay(1000);
-        Serial.print(".");
-        timeout--;
+    WiFi.mode(WIFI_AP_STA);  // Ensure both AP & Station mode are active
+
+    if (ssid != "" && password != "") {
+        WiFi.begin(ssid.c_str(), password.c_str());
+        Serial.print("🔄 Connecting to WiFi");
+        
+        int timeout = 10;
+        while (WiFi.status() != WL_CONNECTED && timeout > 0) {
+            delay(1000);
+            Serial.print(".");
+            timeout--;
+        }
     }
 
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("\n✅ Connected to WiFi");
-        Serial.print("IP Address: ");
+        Serial.print("📶 IP Address: ");
         Serial.println(WiFi.localIP());
     } else {
         Serial.println("\n⚠️ WiFi Failed! Starting AP Mode...");
-        WiFi.softAP(apSSID, apPassword);
-        Serial.print("AP IP Address: ");
-        Serial.println(WiFi.softAPIP());
     }
 
-        // Serve the main HTML page
-        server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-          request->send(200, "text/html", "<h1>ESP32 Temperature</h1><p>Current Temperature: <span id='temp'>Loading...</span> °C</p><script>setInterval(()=>fetch('/temp').then(res=>res.text()).then(temp=>document.getElementById('temp').innerText=temp),2000);</script>");
-      });
-  
-      // Serve the temperature as plain text
-      server.on("/temp", HTTP_GET, [](AsyncWebServerRequest *request){
-          request->send(200, "text/plain", getTemperature());
-      });
-  
-      // Start the server
-      server.begin();
+    // Always enable AP mode
+    WiFi.softAP(apSSID, apPassword);
+    delay(1000);  // Ensure AP initializes properly
+    Serial.print("📡 AP IP Address: ");
+    Serial.println(WiFi.softAPIP());
+
+    // Serve files from SPIFFS
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/index.html", "text/html");
+    });
+    server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/style.css", "text/css");
+    });
+    server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/script.js", "application/javascript");
+    });
+
+    // Endpoint to get temperature
+    server.on("/temp", HTTP_GET, [](AsyncWebServerRequest *request){
+        sensors.requestTemperatures();
+        float tempC = sensors.getTempCByIndex(0);
+        request->send(200, "text/plain", String(tempC, 2));
+    });
+
+    // Endpoint to update WiFi credentials
+    server.on("/wifi", HTTP_POST, [](AsyncWebServerRequest *request){
+        if (request->hasParam("ssid", true) && request->hasParam("password", true)) {
+            String newSSID = request->getParam("ssid", true)->value();
+            String newPassword = request->getParam("password", true)->value();
+            preferences.putString("ssid", newSSID);
+            preferences.putString("password", newPassword);
+            request->send(200, "text/plain", "✅ WiFi credentials saved! Rebooting...");
+            delay(2000);
+            ESP.restart();
+        } else {
+            request->send(400, "text/plain", "⚠️ Missing parameters");
+        }
+    });
+
+    server.begin();
 }
-
-
 void loop() {
-  //Technically not needed as we are serving the temperature on a webpage - loop is only for testing
-    sensors.requestTemperatures();  // Request temperature data
-    float tempC = sensors.getTempCByIndex(0);  // Get temperature in Celsius
-
+    sensors.requestTemperatures();
     Serial.print("Temperature: ");
-    Serial.print(tempC);
+    Serial.print(sensors.getTempCByIndex(0));
     Serial.println(" °C");
-
-    delay(5000);  // Read every 5 seconds
+    delay(5000);
 }

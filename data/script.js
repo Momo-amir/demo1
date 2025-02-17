@@ -14,3 +14,11 @@ document.getElementById("wifi-form").addEventListener("submit", function (event)
 			document.getElementById("status").innerText = data;
 		});
 });
+
+setInterval(
+	() =>
+		fetch("/temp")
+			.then((res) => res.text())
+			.then((temp) => (document.getElementById("temp").innerText = temp)),
+	2000
+);
