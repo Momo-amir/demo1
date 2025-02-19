@@ -3,23 +3,18 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>ESP32 WiFi Setup</title>
+		<title>ESP32 Dashboard</title>
 		<link rel="stylesheet" href="style.css" />
+		<!-- Include Chart.js locally or from CDN -->
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	</head>
 	<body>
-		<h1>ESP32 WiFi Setup</h1>
-		<form id="wifi-form">
-			<label>WiFi SSID:</label>
-			<input type="text" id="ssid" required />
+		<!-- Hamburger Menu -->
+		<header id="hamburgerMenu" />
 
-			<label>Password:</label>
-			<input type="password" id="password" required />
-
-			<button type="submit">Connect</button>
-		</form>
-		<p id="status"></p>
-		<h1>ESP32 Temperature</h1>
+		<h1>ESP32 Temperature Dashboard</h1>
 		<p>Current Temperature: <span id="temp">Loading...</span> °C</p>
+		<canvas id="tempChart"></canvas>
 
 		<script src="script.js"></script>
 	</body>
