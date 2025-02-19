@@ -1,4 +1,22 @@
 document.addEventListener("DOMContentLoaded", function () {
+	fetch("header.html")
+		.then((response) => response.text())
+		.then((html) => {
+			document.getElementById("hamburgerMenu").innerHTML = html;
+			// Now that the header is loaded, attach the menu toggle listener.
+			const menuBtn = document.getElementById("menuBtn");
+			if (menuBtn) {
+				menuBtn.addEventListener("click", function () {
+					const menu = document.getElementById("navMenu");
+					if (menu) {
+						menuBtn.classList.toggle("active");
+						menu.classList.toggle("active");
+					}
+				});
+			}
+		})
+		.catch((error) => console.error("Error loading header:", error));
+
 	let tempChart = null;
 
 	// Try instantiating the chart. If it fails, we display an error and continue.
@@ -8,15 +26,15 @@ document.addEventListener("DOMContentLoaded", function () {
 			const ctx = canvas.getContext("2d");
 			if (typeof Chart !== "undefined") {
 				tempChart = new Chart(ctx, {
-					type: "line",
+					type: "bar",
 					data: {
 						labels: [], // Timestamps
 						datasets: [
 							{
 								label: "Temperature (°C)",
 								data: [],
-								borderColor: "rgba(75,192,192,1)",
-								fill: false,
+
+								backgroundColor: "#007bff",
 							},
 						],
 					},
@@ -46,7 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
 					const parts = line.split(",");
 					if (parts.length >= 2) {
 						const [timestamp, temp] = parts;
-						const timeLabel = new Date(parseInt(timestamp)).toLocaleTimeString();
+
+						const timeLabel = new Date(timestamp).toLocaleTimeString();
+
 						if (tempChart) {
 							tempChart.data.labels.push(timeLabel);
 							tempChart.data.datasets[0].data.push(parseFloat(temp));
@@ -54,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					}
 				}
 			});
+
 			if (tempChart) {
 				tempChart.update();
 			}
@@ -66,16 +87,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	webSocket.onmessage = function (event) {
 		try {
 			const data = JSON.parse(event.data);
-			// Format timestamp (if needed)
-			const timeLabel = new Date(parseInt(data.timestamp)).toLocaleTimeString();
+			const timeLabel = new Date(data.timestamp).toLocaleTimeString();
 			const temp = parseFloat(data.temp);
-			// Update chart if available
+
 			if (tempChart) {
 				tempChart.data.labels.push(timeLabel);
 				tempChart.data.datasets[0].data.push(temp);
 				tempChart.update();
 			}
-			// Also update the current temperature display regardless
+
 			const tempEl = document.getElementById("temp");
 			if (tempEl) tempEl.innerText = temp.toFixed(2);
 		} catch (error) {
@@ -120,15 +140,3 @@ document.addEventListener("DOMContentLoaded", function () {
 			.catch((error) => console.error("Error fetching ESP32 IP:", error));
 	}
 });
-
-document.getElementById("menuBtn").addEventListener("click", function () {
-	var menu = document.getElementById("navMenu");
-	menu.style.display = menu.style.display === "none" ? "block" : "none";
-});
-
-fetch("header.html")
-	.then((response) => response.text())
-	.then((html) => {
-		document.getElementById("hamburgerMenu").innerHTML = html;
-	})
-	.catch((error) => console.error("Error loading header:", error));

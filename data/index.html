@@ -10,12 +10,18 @@
 	</head>
 	<body>
 		<!-- Hamburger Menu -->
-		<header id="hamburgerMenu" />
+		<header id="hamburgerMenu"></header>
 
-		<h1>ESP32 Temperature Dashboard</h1>
-		<p>Current Temperature: <span id="temp">Loading...</span> °C</p>
-		<canvas id="tempChart"></canvas>
-
+		<div class="container">
+			<div>
+				<h1>ESP32 Temperature Dashboard</h1>
+				<p>Latest Temperature: <span id="temp">Loading...</span> °C</p>
+				<p>You can download the CSV of the current data in the top left navigation</p>
+			</div>
+			<div class="chart-container">
+				<canvas id="tempChart"></canvas>
+			</div>
+		</div>
 		<script src="script.js"></script>
 	</body>
 </html>

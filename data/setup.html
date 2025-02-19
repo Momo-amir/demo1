@@ -8,16 +8,26 @@
 	</head>
 	<body>
 		<header id="hamburgerMenu"></header>
-		<h1>ESP32 WiFi Setup</h1>
-		<form id="wifi-form">
-			<label>WiFi SSID:</label>
-			<input type="text" id="ssid" required />
+		<div class="container">
+			<h1>ESP32 WiFi Setup</h1>
+			<form id="wifi-form">
+				<div class="form-container">
+					<div class="form-group">
+						<label>WiFi SSID</label>
+						<input type="text" id="ssid" required />
+					</div>
 
-			<label>Password:</label>
-			<input type="password" id="password" required />
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" id="password" required />
+					</div>
 
-			<button type="submit">Connect</button>
-		</form>
-		<p id="status"></p>
+					<button type="submit" class="submit-btn">Connect</button>
+				</div>
+			</form>
+		</div>
+		<p class="status-msg" id="status"></p>
 	</body>
+
+	<script src="script.js"></script>
 </html>

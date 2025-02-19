@@ -1,0 +1,165 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+input {
+  padding: 8px;
+  border-radius: 5px;
+  border: 2px solid lightgray;
+  transition: all 0.2s ease;
+}
+input:focus {
+  border: 2px solid black;
+  outline: black;
+}
+
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.container {
+  display: grid;
+
+  grid-template-columns: repeat(8, 1fr);
+
+  & > * {
+    grid-column: 4 / span 2;
+  }
+  & .chart-container {
+    grid-column: 2 / span 6;
+  }
+
+  @media screen and (max-width: 1150px) {
+    & > * {
+      grid-column: 3 / span 4;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    & > * {
+      grid-column: 2 / span 6;
+    }
+    & .chart-container {
+      grid-column: 1 / span 8;
+    }
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  label {
+    align-self: start;
+    font-size: 0.8rem;
+    color: gray;
+    margin-bottom: 0.1rem;
+  }
+}
+
+.form-group:focus-within {
+  label {
+    color: black;
+  }
+}
+
+.submit-btn {
+  padding: 0.7rem 1rem;
+  background-color: #007bff;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  width: 100%;
+  transition: all 0.2s ease;
+  &:hover {
+    background-color: #0056b3;
+    border-radius: 5px;
+  }
+  &:active {
+    background-color: #0056b3;
+    border-radius: 5px;
+  }
+}
+/* Container for the hamburger menu */
+.hamburger-menu {
+  position: relative;
+  padding: 10px;
+  display: flex;
+  width: 100%;
+}
+
+/* Hamburger menu button styling */
+.menu-btn {
+  align-self: center;
+  font-size: 1.5rem;
+  padding: 0.5rem 0.7rem;
+  color: #000;
+
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+  &:hover {
+    background-color: #eee;
+  }
+}
+
+.menu-btn.active {
+  background-color: #eee;
+}
+
+/* Navigation menu styling */
+.nav-menu {
+  position: absolute;
+  top: 4rem;
+  left: 0;
+  width: 200px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  display: none;
+  z-index: 1000;
+}
+
+.nav-menu.active {
+  display: block;
+}
+
+/* Menu list styling */
+.nav-menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Each menu item */
+.nav-menu-item {
+  border-bottom: 1px solid lightgray;
+}
+
+/* Link styling within menu items */
+.nav-menu-item a {
+  display: block;
+  padding: 10px;
+  color: #000;
+  text-decoration: none;
+}
+
+/* Hover state for links */
+.nav-menu-item a:hover {
+  background-color: #eee;
+}
+.status-msg {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
