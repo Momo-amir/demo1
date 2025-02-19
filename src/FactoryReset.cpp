@@ -5,7 +5,7 @@
 
 #define RESET_BUTTON_PIN 5
 #define LED_PIN 2
-#define RESET_HOLD_TIME 20000
+#define RESET_HOLD_TIME 10000
 
 void factoryReset() {
     Serial.println("\n🔄 Factory Reset Started...");
@@ -47,7 +47,7 @@ void checkFactoryReset() {
     if (digitalRead(RESET_BUTTON_PIN) == HIGH) {
         if (buttonPressTime == 0) {
             buttonPressTime = millis();
-            Serial.println("🟠 Hold button for 20s to reset...");
+            Serial.println("🟠 Hold button for 10s to reset...");
         }
 
         if (millis() - buttonPressTime >= RESET_HOLD_TIME) {

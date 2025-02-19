@@ -1,6 +1,9 @@
 #include "ServerManager.h"
 #include <SPIFFS.h>
 #include "WiFiManager.h"
+#include <FactoryReset.h>
+#include <Ticker.h>
+
 
 AsyncWebServer ServerManager::server(80);
 AsyncWebSocket ServerManager::ws("/ws");
@@ -13,6 +16,13 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     }
 }
 
+Ticker restartTimer;
+
+void scheduleRestart() {
+    WiFi.mode(WIFI_STA);
+    ESP.restart();
+}
+
 void ServerManager::initServer() {
     if (!SPIFFS.begin(true)) {
         Serial.println("SPIFFS Mount Failed");
@@ -22,7 +32,7 @@ void ServerManager::initServer() {
     // Serve static files
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         // If the system is in Access Point mode, serve setup.html; otherwise, serve index.html.
-        if (WiFi.getMode() == WIFI_AP) {
+        if (WiFi.getMode() == WIFI_AP_STA) {
             request->send(SPIFFS, "/setup.html", "text/html");
         } else {
             request->send(SPIFFS, "/index.html", "text/html");
@@ -53,10 +63,24 @@ void ServerManager::initServer() {
             preferences.putString("ssid", newSSID);
             preferences.putString("password", newPassword);
             preferences.end();
+    
+            WiFi.begin(newSSID.c_str(), newPassword.c_str());
             
-            request->send(200, "text/plain", "✅ WiFi credentials saved! Rebooting...");
-            delay(5000);
-            ESP.restart();
+            int timeout = 15;  
+            while (WiFi.status() != WL_CONNECTED && timeout > 0) {
+                delay(1000);
+                timeout--;
+            }
+    
+            if (WiFi.status() == WL_CONNECTED) {
+                String successMessage = "✅ Connected to " + newSSID + "!\nIP: " + WiFi.localIP().toString() + "\n\nSwitching to WIFI only mode in 2 minutes...";
+                request->send(200, "text/plain", successMessage);
+                
+                // Schedule restart after 2 minutes
+                restartTimer.once(120, scheduleRestart);
+            } else {
+                request->send(500, "text/plain", "⚠️ Failed to connect! Check credentials and retry.");
+            }
         } else {
             request->send(400, "text/plain", "⚠️ Missing parameters");
         }
@@ -77,20 +101,20 @@ void ServerManager::initServer() {
         request->send(200, "text/plain", data);
     });
 
-    // Return ESP32 IP address
-    server.on("/get-ip", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if (WiFi.status() == WL_CONNECTED) {
-            request->send(200, "text/plain", WiFi.localIP().toString());
-        } else {
-            request->send(503, "text/plain", "⚠️ Not connected to WiFi");
-        }
-    });
+
 
     // CSV file download
     server.on("/download", HTTP_GET, [](AsyncWebServerRequest *request) {
         AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/temp.csv", "text/csv");
         response->addHeader("Content-Disposition", "attachment; filename=temp.csv");
         request->send(response);
+    });
+
+
+    server.on("/factory-reset", HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", "🔄 Factory Reset Initiated...");
+        delay(1000);
+        factoryReset();
     });
     
     ws.onEvent(onWsEvent);

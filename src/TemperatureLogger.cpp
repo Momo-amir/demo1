@@ -21,6 +21,9 @@ void TemperatureLogger::init() {
 }
 
 void TemperatureLogger::logAndBroadcast() {
+    static unsigned long lastBroadcastTime = 0;
+    const unsigned long BROADCAST_INTERVAL = 5 * 60 * 1000;  // 5 minutes
+
     sensors.requestTemperatures();
     float tempC = sensors.getTempCByIndex(0);
 
@@ -43,13 +46,16 @@ void TemperatureLogger::logAndBroadcast() {
         Serial.println("⚠️ Failed to open /temp.csv for writing");
     }
 
-    // Send JSON to WebSocket clients
-    String json = "{\"timestamp\":\"" + String(timeStr) + "\",\"temp\":\"" + String(tempC, 2) + "\"}";
-    ServerManager::ws.textAll(json);
+    // Only send WebSocket updates every 5 minutes
+    if (millis() - lastBroadcastTime >= BROADCAST_INTERVAL) {
+        lastBroadcastTime = millis();
 
-    // Debug output
-    Serial.print("Temperature logged: ");
-    Serial.print(tempC);
-    Serial.print(" °C at ");
-    Serial.println(timeStr);
+        // Send JSON to WebSocket clients
+        String json = "{\"timestamp\":\"" + String(timeStr) + "\",\"temp\":\"" + String(tempC, 2) + "\"}";
+        ServerManager::ws.textAll(json);
+
+        Serial.println("📡 Sent WebSocket update: " + json);
+    }
+
+
 }

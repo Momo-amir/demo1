@@ -5,7 +5,7 @@ const char* apSSID = "ESP32-Setup";
 const char* apPassword = "12345678";
 
 void WiFiManager::startAPMode() {
-    WiFi.mode(WIFI_AP);
+    WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(apSSID, apPassword);
     Serial.print("AP IP Address: ");
     Serial.println(WiFi.softAPIP());
