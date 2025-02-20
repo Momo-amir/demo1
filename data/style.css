@@ -27,12 +27,10 @@ input:focus {
 	grid-template-columns: repeat(8, 1fr);
 }
 
-/* Flattening .container > * */
 .container > * {
 	grid-column: 4 / span 2;
 }
 
-/* Flattening .container .chart-container */
 .container .chart-container {
 	grid-column: 2 / span 6;
 }
@@ -58,7 +56,6 @@ input:focus {
 	width: 100%;
 }
 
-/* Flattening label inside .form-group */
 .form-group label {
 	align-self: start;
 	font-size: 0.8rem;
@@ -66,7 +63,6 @@ input:focus {
 	margin-bottom: 0.1rem;
 }
 
-/* Flattening :focus-within rule */
 .form-group:focus-within label {
 	color: black;
 }
@@ -92,7 +88,6 @@ input:focus {
 	border-radius: 5px;
 }
 
-/* Container for the hamburger menu */
 .hamburger-menu {
 	position: relative;
 	padding: 10px;
@@ -100,7 +95,6 @@ input:focus {
 	width: 100%;
 }
 
-/* Hamburger menu button styling */
 .menu-btn {
 	align-self: center;
 	font-size: 1.5rem;

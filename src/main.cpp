@@ -10,7 +10,7 @@
 // Structed main based on C# progam.cs or startup.cs philosophy
 // as it is the main entry point for the program and should not hold actual logic
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(115200); 
     delay(2000);
     pinMode(LED, OUTPUT);
     pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
