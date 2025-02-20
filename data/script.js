@@ -1,9 +1,15 @@
+// DOMContentLoaded event listener to run the script after the HTML content is loaded
+// Fetch the header HTML and insert it into the hamburger menu element
+// Create a new Chart object for the temperature chart
+// Fetch the historical temperature data and update the chart
+// Open a WebSocket connection to the server
+// WebSocket onmessage event listener to update the chart and temperature value
+// WiFi configuration form submission event listener
 document.addEventListener("DOMContentLoaded", function () {
 	fetch("header.html")
 		.then((response) => response.text())
 		.then((html) => {
 			document.getElementById("hamburgerMenu").innerHTML = html;
-			// Now that the header is loaded, attach the menu toggle listener.
 			const menuBtn = document.getElementById("menuBtn");
 			if (menuBtn) {
 				menuBtn.addEventListener("click", function () {
@@ -19,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	let tempChart = null;
 
-	// Try instantiating the chart. If it fails, we display an error and continue.
+	// Try instantiating the chart. If it fails, display an error and continue.
 	try {
 		const canvas = document.getElementById("tempChart");
 		if (canvas) {

@@ -73,11 +73,10 @@ void ServerManager::initServer() {
             }
     
             if (WiFi.status() == WL_CONNECTED) {
-                String successMessage = "✅ Connected to " + newSSID + "!\nIP: " + WiFi.localIP().toString() + "\n\nSwitching to WIFI only mode in 2 minutes...";
+                String successMessage = "✅ Connected to " + newSSID + "!\nGo to IP: " + WiFi.localIP().toString() + "\n\n Restarting & switching to WIFI only mode in 30 seconds...";
                 request->send(200, "text/plain", successMessage);
                 
-                // Schedule restart after 2 minutes
-                restartTimer.once(120, scheduleRestart);
+                restartTimer.once(30, scheduleRestart);
             } else {
                 request->send(500, "text/plain", "⚠️ Failed to connect! Check credentials and retry.");
             }

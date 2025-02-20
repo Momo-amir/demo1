@@ -3,10 +3,11 @@
 #include <WiFi.h>
 #include <SPIFFS.h>
 
-#define RESET_BUTTON_PIN 5
-#define LED_PIN 2
 #define RESET_HOLD_TIME 10000
 
+
+// Factory reset function - clears WiFi credentials, disconnects WiFi, deletes temperature log file, and restarts ESP32
+// This function is called when the reset button is held for 10 seconds or when the /factory-reset endpoint is hit
 void factoryReset() {
     Serial.println("\n🔄 Factory Reset Started...");
 
@@ -30,14 +31,15 @@ void factoryReset() {
 
     // Blink LED 3 times
     for (int i = 0; i < 3; i++) {
-        digitalWrite(LED_PIN, HIGH);
-        delay(300);
-        digitalWrite(LED_PIN, LOW);
-        delay(300);
+        Serial.println("🟢 Blinking LED...");
+        delay(500);
+        digitalWrite(LED,HIGH);
+        delay(500);
+        digitalWrite(LED,LOW);
     }
 
+    delay(5000);
     Serial.println("🚀 Restarting ESP32...");
-    delay(500);
     ESP.restart();
 }
 

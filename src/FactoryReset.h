@@ -2,8 +2,11 @@
 #define FACTORY_RESET_H
 
 #include <Arduino.h>
+void checkFactoryReset();  
+void factoryReset();
 
-void checkFactoryReset();  // Call this in loop()
-void factoryReset();       // Handles the actual reset process
+
+ #define LED 2
+ #define RESET_BUTTON_PIN 5
 
 #endif
