@@ -9,4 +9,4 @@ namespace ServerManager {
     void initServer();
 }
 
-#endif // SERVERMANAGER_H
+#endif 
